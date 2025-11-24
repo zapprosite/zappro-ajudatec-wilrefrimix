@@ -1,3 +1,5 @@
+import { record } from '../../../../lib/monitor'
+
 export async function OPTIONS() {
   const origin = (() => { try { return new URL(process.env.NEXT_PUBLIC_WEBSITE_URL || '').origin } catch { return '' } })()
   return new Response(null, {
@@ -20,7 +22,7 @@ export async function POST(req: Request) {
   const { text } = await req.json()
   const apiKey = process.env.OPENAI_API_KEY
   if (!apiKey) {
-    return new Response(JSON.stringify({ audioBase64: null }), { status: 500, headers: { 'Access-Control-Allow-Origin': allowed } })
+    return new Response(JSON.stringify({ audioBase64: null }), { status: 200, headers: { 'Access-Control-Allow-Origin': allowed } })
   }
 
   if (!text || typeof text !== 'string' || text.trim().length < 2) {
@@ -73,5 +75,6 @@ export async function POST(req: Request) {
   const dur = Date.now() - t0
   const headers: Record<string, string> = { 'Access-Control-Allow-Origin': allowed, 'Server-Timing': `total;dur=${dur}` }
   if (dur > 2000 && process.env.NODE_ENV !== 'production') console.warn('slow_route', { route: '/api/openai/tts', dur })
+  record('/api/openai/tts', dur, 200)
   return new Response(JSON.stringify({ audioBase64 }), { status: 200, headers })
 }

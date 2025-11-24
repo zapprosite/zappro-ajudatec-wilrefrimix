@@ -208,3 +208,35 @@ create policy manage_own_attachments_delete on public.attachments for delete usi
   )
 );
 
+-- Monitoramento: Métricas de Rotas e Logs com TTL
+create table if not exists public.monitor_route_metrics (
+  id uuid primary key default gen_random_uuid(),
+  ts timestamptz not null default now(),
+  route text not null,
+  dur_ms integer not null,
+  status integer not null,
+  ttl_at timestamptz not null default (now() + interval '7 days')
+);
+create index if not exists idx_monitor_route_metrics_ts on public.monitor_route_metrics(ts);
+create index if not exists idx_monitor_route_metrics_route on public.monitor_route_metrics(route);
+
+create table if not exists public.monitor_logs (
+  id uuid primary key default gen_random_uuid(),
+  ts timestamptz not null default now(),
+  level text not null,
+  msg text not null,
+  ttl_at timestamptz not null default (now() + interval '7 days')
+);
+create index if not exists idx_monitor_logs_ts on public.monitor_logs(ts);
+create index if not exists idx_monitor_logs_level on public.monitor_logs(level);
+
+alter table public.monitor_route_metrics enable row level security;
+alter table public.monitor_logs enable row level security;
+
+-- Política: leitura apenas para usuários autenticados
+create policy monitor_route_metrics_select_authenticated on public.monitor_route_metrics for select to authenticated using (true);
+create policy monitor_logs_select_authenticated on public.monitor_logs for select to authenticated using (true);
+
+-- Política: inserção pelo serviço
+create policy monitor_route_metrics_insert_service on public.monitor_route_metrics for insert to service_role with check (true);
+create policy monitor_logs_insert_service on public.monitor_logs for insert to service_role with check (true);

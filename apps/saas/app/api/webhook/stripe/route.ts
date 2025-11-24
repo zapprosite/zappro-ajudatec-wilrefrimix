@@ -2,7 +2,10 @@ import Stripe from 'stripe'
 
 export async function POST(request: Request) {
   const t0 = Date.now()
-  const secret = process.env.STRIPE_WEBHOOK_SECRET!
+  const secret = process.env.STRIPE_WEBHOOK_SECRET || ''
+  if (!secret) {
+    return new Response('missing webhook secret', { status: 500 })
+  }
   const sig = request.headers.get('stripe-signature') || ''
   const rawBody = await request.text()
 

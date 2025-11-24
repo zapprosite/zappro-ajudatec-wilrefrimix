@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { record } from '../../../../lib/monitor'
 type Item = { title: string; uri: string }
 type Ranked = { name: string; uri: string; score: number }
 
@@ -113,6 +114,7 @@ export async function POST(req: Request) {
   }
   const headers: Record<string, string> = { 'Access-Control-Allow-Origin': allowed, 'Server-Timing': `total;dur=${dur}` }
   if (dur > 2000 && process.env.NODE_ENV !== 'production') console.warn('slow_route', { route: '/api/search/professors', method: 'POST', dur })
+  record('/api/search/professors', dur, 200)
   return NextResponse.json({ items: top }, { status: 200, headers })
   } catch {
     return NextResponse.json({ items: [] }, { status: 200, headers: { 'Access-Control-Allow-Origin': process.env.ALLOWED_ORIGIN || process.env.NEXT_PUBLIC_WEBSITE_URL || '' } })
@@ -233,6 +235,7 @@ export async function GET(req: Request) {
     }
     const headers: Record<string, string> = { 'Access-Control-Allow-Origin': allowed, 'Server-Timing': `total;dur=${dur}` }
     if (dur > 2000 && process.env.NODE_ENV !== 'production') console.warn('slow_route', { route: '/api/search/professors', method: 'GET', dur })
+    record('/api/search/professors', dur, 200)
     return NextResponse.json({ items: top }, { status: 200, headers })
   } catch {
     return NextResponse.json({ items: [] }, { status: 200, headers: { 'Access-Control-Allow-Origin': allowed } })

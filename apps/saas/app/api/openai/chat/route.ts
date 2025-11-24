@@ -1,3 +1,5 @@
+import { record } from '../../../../lib/monitor'
+
 export async function OPTIONS() {
   const origin = (() => { try { return new URL(process.env.NEXT_PUBLIC_WEBSITE_URL || '').origin } catch { return '' } })()
   return new Response(null, {
@@ -32,7 +34,8 @@ export async function POST(req: Request) {
 
   const apiKey = process.env.OPENAI_API_KEY
   if (!apiKey) {
-    return new Response(JSON.stringify({ error: 'OPENAI_API_KEY missing' }), { status: 500, headers: { 'Access-Control-Allow-Origin': allowed } })
+    const payload = { text: 'API não configurada', groundingUrls: [] }
+    return new Response(JSON.stringify(payload), { status: 200, headers: { 'Access-Control-Allow-Origin': allowed } })
   }
 
   const contentParts: ContentPart[] = []
@@ -203,5 +206,6 @@ export async function POST(req: Request) {
   }
   const headers: Record<string, string> = { 'Access-Control-Allow-Origin': allowed, 'Server-Timing': `total;dur=${dur}` }
   if (dur > 2000 && process.env.NODE_ENV !== 'production') console.warn('slow_route', { route: '/api/openai/chat', dur })
+  record('/api/openai/chat', dur, 200)
   return new Response(JSON.stringify(payload), { status: 200, headers })
 }

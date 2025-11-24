@@ -1,4 +1,5 @@
 import Stripe from 'stripe'
+import { record } from '../../../lib/monitor'
 
 export async function POST(req: Request) {
   const t0 = Date.now()
@@ -24,6 +25,7 @@ export async function POST(req: Request) {
   }
   const headers: Record<string, string> = { 'Access-Control-Allow-Origin': allowed, 'Server-Timing': `total;dur=${dur}` }
   if (dur > 2000 && process.env.NODE_ENV !== 'production') console.warn('slow_route', { route: '/api/checkout', dur })
+  record('/api/checkout', dur, 200)
   return new Response(JSON.stringify({ id: session.id, url: session.url }), { status: 200, headers })
 }
 
