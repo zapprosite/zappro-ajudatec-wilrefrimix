@@ -36,4 +36,13 @@ export interface ChatSession {
   id: string;
   messages: Message[];
   title: string;
+  updatedAt: number;
+  preview: string;
+}
+
+export interface Suggestion {
+  title: string;
+  subtitle: string;
+  icon: string;
+  prompt: string;
 }
