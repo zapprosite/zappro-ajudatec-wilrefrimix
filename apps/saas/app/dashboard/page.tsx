@@ -3,12 +3,13 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
-import { Loader2, LogOut, User, CheckCircle, XCircle } from 'lucide-react';
+import { Loader2, LogOut, User, CheckCircle } from 'lucide-react';
 
 export default function DashboardPage() {
     const router = useRouter();
     const { user, loading, signOut } = useAuth();
-    const [subscription, setSubscription] = useState<any>(null);
+    type Subscription = { plan: string; status: string; validUntil: string };
+    const [subscription, setSubscription] = useState<Subscription | null>(null);
     const [loadingSubscription, setLoadingSubscription] = useState(true);
 
     useEffect(() => {
@@ -156,19 +157,19 @@ export default function DashboardPage() {
                 <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl p-6 border border-white/10">
                     <h3 className="text-lg font-semibold text-white mb-4">Ações Rápidas</h3>
                     <div className="grid md:grid-cols-3 gap-4">
-                        <button className="p-4 rounded-xl bg-white/5 hover:bg-white/10 transition-colors text-left border border-white/10">
+                        <button aria-label="Iniciar Chat" onClick={() => router.push('/chat')} className="p-4 rounded-xl bg-white/5 hover:bg-white/10 transition-colors text-left border border-white/10">
                             <div className="text-2xl mb-2">💬</div>
                             <h4 className="font-semibold text-white mb-1">Iniciar Chat</h4>
                             <p className="text-xs text-gray-400">Converse com a IA especializada</p>
                         </button>
 
-                        <button className="p-4 rounded-xl bg-white/5 hover:bg-white/10 transition-colors text-left border border-white/10">
+                        <button aria-label="Abrir Manuais" onClick={() => router.push('/chat')} className="p-4 rounded-xl bg-white/5 hover:bg-white/10 transition-colors text-left border border-white/10">
                             <div className="text-2xl mb-2">📚</div>
                             <h4 className="font-semibold text-white mb-1">Manuais</h4>
                             <p className="text-xs text-gray-400">Acesse biblioteca técnica</p>
                         </button>
 
-                        <button className="p-4 rounded-xl bg-white/5 hover:bg-white/10 transition-colors text-left border border-white/10">
+                        <button aria-label="Abrir Configurações" onClick={() => router.push('/dashboard')} className="p-4 rounded-xl bg-white/5 hover:bg-white/10 transition-colors text-left border border-white/10">
                             <div className="text-2xl mb-2">⚙️</div>
                             <h4 className="font-semibold text-white mb-1">Configurações</h4>
                             <p className="text-xs text-gray-400">Gerencie sua conta</p>

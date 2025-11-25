@@ -317,12 +317,47 @@ Diretriz obrigatória: usar em features de UI críticas (upload, TTS, OAuth).
 6) Quando usar (X/Y/Z)
 - X: Antes de releases/tag.
 - Y: Após mudanças de UI/UX ou acessibilidade.
-- Z: Em regressões relatadas.
+7) Execução em WSL e Docker
+  - WSL (local): `BASE_URL=http://localhost:3001` (porta canônica).
+  - Docker Compose: `BASE_URL=http://web:3001`.
+  - Pin de imagem Playwright compatível com versão do projeto (no repositório: `v1.47.0-jammy`).
+  - Referência: https://playwright.dev/docs/docker
 
-7) Execução em Docker (WSL)
-- Rodar testes dentro do compose (`tests`) com `BASE_URL=http://web:3001`.
-- Pin de imagem Playwright compatível com versão do projeto (no repositório: `v1.47.0-jammy`).
-- Referência: https://playwright.dev/docs/docker
+### Credenciais de teste (Fake Auth)
+
+- Para testes E2E que exigem login simples em preview/dev:
+  - `NEXT_PUBLIC_FAKE_AUTH_EMAIL=test@test.com`
+  - `NEXT_PUBLIC_FAKE_AUTH_PASSWORD=12345678A`
+  - Fluxo: Landing → `Fazer Login` → `Testar Grátis` → `\dashboard`
+  - Usar `BASE_URL=http://localhost:3001` nos testes locais em WSL.
+
+### Seed de login de teste (WSL)
+- Sem dependência de banco: o contexto aplica fake auth via `AuthContext` e persiste `fake_auth_session` em `localStorage` após o login.
+- Garantir servidor dev em WSL: `wsl bash -lc "cd /mnt/d/.../apps/saas && ALLOWED_ORIGIN=http://localhost:3001 NEXT_PUBLIC_WEBSITE_URL=http://localhost:3001 ./node_modules/.bin/next dev -p 3001"`.
+- Testar login e chat no mesmo caso E2E: autenticar com botão OAuth (fallback fake), acessar `/chat`, enviar mensagem e validar resposta e cabeçalhos `Server-Timing`.
+
+### Conversões para WSL Ubuntu 24.04
+
+- Terminal padrão VS Code configurado para `WSL: Ubuntu-24.04` (`.vscode/settings.json`).
+- Scripts raiz e `apps/saas` migrados para execução via `wsl bash -lc` com caminhos `/mnt/d/...`.
+- `playwright.config.ts` ajustado para iniciar `next dev` em WSL com variáveis de ambiente fixas e porta canônica `3001`.
+- `AuthButtons.tsx` refatorado para fallback de autenticação fake em dev e integrado ao `AuthModal`.
+- Remoção de instância duplicada de botões OAuth na landing para evitar seletores ambíguos em testes.
+- Middleware CORS (`apps/saas/middleware.ts`) parametrizado por `ALLOWED_ORIGIN`/`NEXT_PUBLIC_WEBSITE_URL` para preview consistente no WSL.
+
+### Justificativas Técnicas
+
+- Uso de `wsl bash -lc` garante semântica POSIX e evita incompatibilidades de PowerShell/cmd na definição de env vars.
+- Porta única `3001` reduz flakiness em E2E e simplifica CORS (`ALLOWED_ORIGIN` e `NEXT_PUBLIC_WEBSITE_URL`).
+- Fallback fake auth remove dependência de provedores OAuth em ambientes de preview, mantendo equivalência funcional para testes.
+- Centralização dos botões OAuth no modal de login evita duplicidade e melhora acessibilidade/seleção por `role`.
+- Parametrização de CORS no middleware mantém segurança e previsibilidade em rotas `app/api/*` no dev.
+
+### Compatibilidade WSL Ubuntu 24.04
+
+- Validação manual: login email/senha (`tests/auth-login.spec.ts`) e OAuth fallback (`tests/oauth-google.spec.ts`, `tests/oauth-github.spec.ts`) passaram em WSL.
+- Lint e typecheck executados em WSL sem erros.
+- Preview dev funcional em `http://localhost:3001` (Next.js App Router).
 
 ---
 

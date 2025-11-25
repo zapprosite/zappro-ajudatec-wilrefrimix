@@ -46,7 +46,7 @@ test('professores endpoint responde com lista', async ({ request }) => {
 
 test('link de assinatura leva para o checkout', async ({ page }) => {
   await page.goto('/');
-  const checkoutLink = page.locator('a[href*="checkout.stripe.com"]');
+  const checkoutLink = page.locator('a[href*="checkout.stripe.com"]').first();
   await expect(checkoutLink).toBeVisible();
   await checkoutLink.click();
   await expect(page).toHaveURL(/checkout.stripe.com/);

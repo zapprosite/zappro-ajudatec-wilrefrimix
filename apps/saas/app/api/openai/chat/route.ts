@@ -27,7 +27,13 @@ export async function POST(req: Request) {
   if (allowed && origin && origin !== allowed) {
     return new Response('forbidden', { status: 403, headers: { 'Access-Control-Allow-Origin': allowed } })
   }
-  const { text, attachments, useSearch } = (await req.json()) as Body
+  let parsed: Partial<Body> = {}
+  try {
+    parsed = await req.json()
+  } catch {}
+  const text = typeof parsed.text === 'string' ? parsed.text : ''
+  const attachments = Array.isArray(parsed.attachments) ? parsed.attachments : []
+  const useSearch = !!parsed.useSearch
 
   const apiKey = process.env.OPENAI_API_KEY
   if (!apiKey) {

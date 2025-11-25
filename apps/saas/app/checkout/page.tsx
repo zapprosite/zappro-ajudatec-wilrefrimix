@@ -9,7 +9,6 @@ export default function CheckoutPage() {
     const router = useRouter();
     const { user, session } = useAuth();
     const [error, setError] = useState('');
-    const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
         if (!user || !session) {
@@ -40,9 +39,9 @@ export default function CheckoutPage() {
                 if (data.url) {
                     window.location.href = data.url;
                 }
-            } catch (err: any) {
-                setError(err.message || 'Erro ao processar pagamento');
-                setIsLoading(false);
+            } catch (err) {
+                const message = err instanceof Error ? err.message : 'Erro ao processar pagamento';
+                setError(message);
             }
         };
 

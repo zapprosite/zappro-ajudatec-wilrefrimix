@@ -27,8 +27,9 @@ export function RegisterForm({ onSubmit, onToggleMode }: RegisterFormProps) {
         setIsLoading(true);
         try {
             await onSubmit(data);
-        } catch (err: any) {
-            setError(err.message || 'Erro ao criar conta');
+        } catch (err) {
+            const message = err instanceof Error ? err.message : 'Erro ao criar conta';
+            setError(message);
         } finally {
             setIsLoading(false);
         }

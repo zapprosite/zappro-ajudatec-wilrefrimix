@@ -47,10 +47,11 @@ export async function POST(request: NextRequest) {
         });
 
         return NextResponse.json({ sessionId: session.id, url: session.url });
-    } catch (error: any) {
+    } catch (error) {
+        const message = error instanceof Error ? error.message : 'Erro ao criar sessão de checkout';
         console.error('Erro ao criar checkout session:', error);
         return NextResponse.json(
-            { error: error.message || 'Erro ao criar sessão de checkout' },
+            { error: message },
             { status: 500 }
         );
     }

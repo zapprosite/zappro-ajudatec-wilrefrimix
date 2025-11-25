@@ -137,6 +137,21 @@ zappro-ajudatec-wilrefrimix/
 - ✅ Logout
 - ✅ Protected routes
 - ✅ AuthContext global (React Context API)
+ 
+### 🛡️ Administração
+
+- ✅ Login administrativo com credenciais padrão em dev/preview (`admin`/`admin`)
+- ✅ Hash de senha com `bcryptjs` via `ADMIN_PASSWORD_HASH` (server-only)
+- ✅ Sessão admin assinada com HMAC (`ADMIN_SESSION_SECRET`)
+- ✅ Logs de acesso via `lib/monitor` persistidos no Supabase (RLS)
+- ✅ Páginas: `/admin/login` e `/admin`
+
+#### Conta Administrativa Padrão
+
+- Usuário: `admin`
+- Senha: `admin`
+
+Esta conta está disponível por padrão nos ambientes de desenvolvimento, preview e staging para validação funcional e testes E2E. Em produção, substitua a senha configurando `ADMIN_PASSWORD_HASH` (hash `bcrypt` da senha desejada) e ajuste `ADMIN_SESSION_SECRET` para um valor forte. Opcionalmente, altere `ADMIN_USERNAME`.
 
 ### 💳 Pagamentos (Stripe)
 
@@ -220,6 +235,11 @@ STRIPE_WEBHOOK_SECRET=whsec_xxx
 NEXT_PUBLIC_STRIPE_PRICE_ID=price_xxx
 NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_xxx
 NEXT_PUBLIC_STRIPE_PRICING_TABLE_ID=prctbl_xxx
+
+# Admin (apenas servidor)
+ADMIN_USERNAME=admin
+ADMIN_PASSWORD_HASH= # defina na produção (hash bcrypt da senha)
+ADMIN_SESSION_SECRET=change-this-in-prod
 ```
 
 ### 3. Iniciar Supabase Local
@@ -237,6 +257,12 @@ wsl bash -lc "cd /mnt/d/projetos/zappro-ajudatec-wilrefrimix/zappro-ajudatec-wil
 ```
 
 Abrir: **http://localhost:3001**
+
+#### Porta padrão
+
+Ambiente de desenvolvimento WSL usa **sempre `3001`**. Não alternar portas automaticamente. Caso seja necessário usar outra porta, isso deve ser solicitado explicitamente.
+
+Playwright em WSL: `BASE_URL=http://localhost:3001`.
 
 ---
 
@@ -274,6 +300,26 @@ npx supabase status      # Ver status
 4. Verificar redirect para `/dashboard`
 5. Testar logout
 
+### Administração
+
+1. Abrir `http://localhost:3001/admin/login`
+2. Fazer login com `admin`/`admin` (dev/preview)
+3. Acessar `/admin` e validar cabeçalho "Área Administrativa"
+4. Acionar "Sair" e validar remoção de cookie
+
+### Credenciais de Teste (Fake Auth)
+
+- Email: `test@test.com`
+- Senha: `12345678A`
+- Para habilitar no preview/dev, defina:
+
+```bash
+NEXT_PUBLIC_FAKE_AUTH_EMAIL=test@test.com
+NEXT_PUBLIC_FAKE_AUTH_PASSWORD=12345678A
+```
+
+Abrir a landing, clicar em `Fazer Login`, informar as credenciais e confirmar. Em seguida clicar `Testar Grátis` para ir ao `\dashboard`.
+
 ### Checkout Stripe
 
 1. No dashboard, clicar **"Assinar"**
@@ -307,6 +353,13 @@ npx supabase status      # Ver status
 - ✅ httpOnly cookies (Supabase Auth)
 - ✅ Non-root user no Docker
 - ✅ Container scanning (Trivy)
+
+### Administração (Boas práticas)
+
+- Defina `ADMIN_PASSWORD_HASH` com `bcrypt` na produção (nunca use senha em texto plano)
+- Altere `ADMIN_SESSION_SECRET` em produção
+- Restrinja origem com `ALLOWED_ORIGIN` e valide `NEXT_PUBLIC_WEBSITE_URL`
+- Audite logs de `admin-login`/`admin-logout` na tabela `monitor_logs` (RLS)
 
 ### Logs Protegidos
 

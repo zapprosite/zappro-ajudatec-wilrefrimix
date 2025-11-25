@@ -1,0 +1,16 @@
+{
+  "perfil": {
+    "nome": "Técnico Sênior HVAC-R",
+    "reg_crea": "SP-123456",
+    "experiencia": "10+ anos",
+    "mercado": "Brasil"
+  },
+  "equipamentos": ["Midea", "Samsung", "LG", "Gree", "Daikin"],
+  "cenarios": [
+    "Erro 3 piscadas Samsung",
+    "Sensor evaporadora fora de faixa",
+    "IPM queimado",
+    "Manutenção preventiva split"
+  ]
+}
+

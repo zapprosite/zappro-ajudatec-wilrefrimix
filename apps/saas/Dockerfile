@@ -19,11 +19,15 @@ WORKDIR /app
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV PORT=3001
+ENV TZ=UTC
+LABEL org.opencontainers.image.title="ZapPRO SaaS" \
+      org.opencontainers.image.description="Next.js app for HVAC-R assistant" \
+      org.opencontainers.image.version="dev"
 # Atualiza certificados para conexões TLS seguras
 RUN apk add --no-cache ca-certificates tzdata && update-ca-certificates
 # Copia o app standalone otimizado gerado pelo Next
-COPY --from=builder /app/.next/standalone /app
-COPY --from=builder /app/.next/static ./apps/saas/.next/static
+COPY --from=builder --chown=node:node /app/.next/standalone /app
+COPY --from=builder --chown=node:node /app/.next/static ./apps/saas/.next/static
 # Define usuário não-root
 USER node
 EXPOSE 3001

@@ -8,8 +8,6 @@ type RouteEvent = { ts: number; route: string; dur: number; status: number }
 const logs: LogEvent[] = []
 const routes: RouteEvent[] = []
 const clients: Set<{ write: (data: string) => void }> = new Set()
-let lastCpu = os.loadavg()[0]
-let lastCpuTs = Date.now()
 
 function pushLog(level: Level, msg: string) {
   const ev = { ts: Date.now(), level, msg }
@@ -38,11 +36,8 @@ export function attachClient(write: (data: string) => void) {
 export function connections(): number { return clients.size }
 
 function cpuPercent(): number {
-  const now = Date.now()
   const curr = os.loadavg()[0]
   const cores = Math.max(1, os.cpus().length)
-  lastCpu = curr
-  lastCpuTs = now
   const pct = Math.min(100, (curr / cores) * 100)
   return Math.round(pct * 10) / 10
 }

@@ -27,8 +27,9 @@ export function LoginForm({ onSubmit, onToggleMode }: LoginFormProps) {
         setIsLoading(true);
         try {
             await onSubmit(data);
-        } catch (err: any) {
-            setError(err.message || 'Erro ao fazer login');
+        } catch (err) {
+            const message = err instanceof Error ? err.message : 'Erro ao fazer login';
+            setError(message);
         } finally {
             setIsLoading(false);
         }

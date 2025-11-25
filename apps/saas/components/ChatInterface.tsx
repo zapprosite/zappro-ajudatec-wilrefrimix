@@ -431,7 +431,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ user, onUpgradeClick }) =
           </div>
           <div className="flex flex-col">
             <h1 className="font-bold text-base leading-tight">ZapPRO</h1>
-            <p className="text-xs text-green-100 opacity-90 truncate w-32 md:w-auto">{statusMessage || 'Online'}</p>
+            <p className="text-xs text-white truncate w-32 md:w-auto">{statusMessage || 'Online'}</p>
           </div>
         </div>
         {isTrial && (
@@ -571,16 +571,16 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ user, onUpgradeClick }) =
           {showClipOptions && (
             <div id="clip-menu" role="menu" className="absolute bottom-14 left-0 bg-white rounded-2xl shadow-lg border border-slate-200 p-3 flex gap-4 animate-fade-in">
               <div className="flex flex-col items-center gap-1">
-                <button role="menuitem" tabIndex={0} aria-label="Documento" onClick={() => { setClipAccept('.pdf,.txt'); setShowClipOptions(false); fileInputRef.current?.setAttribute('accept', '.pdf,.txt'); fileInputRef.current?.click(); }} className="w-11 h-11 rounded-full bg-emerald-100 hover:bg-emerald-200 flex items-center justify-center text-emerald-700">
-                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6zm1 7h5v11H6V4h8v5z" /></svg>
-                </button>
-                <span className="text-[10px] text-slate-500">Documento</span>
-              </div>
-              <div className="flex flex-col items-center gap-1">
                 <button role="menuitem" tabIndex={0} aria-label="Galeria" onClick={() => { setClipAccept('image/*,video/*'); setShowClipOptions(false); fileInputRef.current?.setAttribute('accept', 'image/*,video/*'); fileInputRef.current?.click(); }} className="w-11 h-11 rounded-full bg-blue-100 hover:bg-blue-200 flex items-center justify-center text-blue-700">
                   <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M21 19V5a2 2 0 00-2-2H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2zM8.5 13.5l2.5 3 3.5-4.5L19 18H5l3.5-4.5zM10 8a2 2 0 110 4 2 2 0 010-4z" /></svg>
                 </button>
                 <span className="text-[10px] text-slate-500">Galeria</span>
+              </div>
+              <div className="flex flex-col items-center gap-1">
+                <button role="menuitem" tabIndex={0} aria-label="Documento" onClick={() => { setClipAccept('.pdf,.txt'); setShowClipOptions(false); fileInputRef.current?.setAttribute('accept', '.pdf,.txt'); fileInputRef.current?.click(); }} className="w-11 h-11 rounded-full bg-emerald-100 hover:bg-emerald-200 flex items-center justify-center text-emerald-700">
+                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6zm1 7h5v11H6V4h8v5z" /></svg>
+                </button>
+                <span className="text-[10px] text-slate-500">Documento</span>
               </div>
               <div className="flex flex-col items-center gap-1">
                 <button role="menuitem" tabIndex={0} aria-label="Câmera" onClick={() => { setClipAccept('image/*'); setShowClipOptions(false); fileInputRef.current?.setAttribute('accept', 'image/*'); fileInputRef.current?.setAttribute('capture', 'environment'); fileInputRef.current?.click(); }} className="w-11 h-11 rounded-full bg-purple-100 hover:bg-purple-200 flex items-center justify-center text-purple-700">
@@ -639,9 +639,15 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ user, onUpgradeClick }) =
       {/* Attachments Preview Bar */}
       {attachments.length > 0 && (
         <div className="absolute bottom-20 left-4 right-4 bg-white p-2 rounded-lg shadow-lg border border-slate-200 flex gap-2 overflow-x-auto z-20 animate-fade-in-up">
-          {attachments.map((att, i) => (
+              {attachments.map((att, i) => (
             <div key={i} className="relative shrink-0">
-              {att.type === 'image' ? <Image src={att.url} alt="anexo" width={64} height={64} className="w-16 h-16 object-cover rounded" unoptimized /> : <div className="w-16 h-16 bg-slate-100 flex items-center justify-center text-xs rounded border">{att.type}</div>}
+              {att.type === 'image' ? (
+                <Image src={att.url} alt="anexo" width={64} height={64} className="w-16 h-16 object-cover rounded" unoptimized />
+              ) : att.type === 'document' ? (
+                <div className="w-16 h-16 bg-slate-100 flex items-center justify-center text-[10px] rounded border font-bold">PDF / DOC</div>
+              ) : (
+                <div className="w-16 h-16 bg-slate-100 flex items-center justify-center text-xs rounded border">{att.type}</div>
+              )}
               <button aria-label="Remover anexo" onClick={() => setAttachments(prev => prev.filter((_, idx) => idx !== i))} className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs shadow">×</button>
             </div>
           ))}

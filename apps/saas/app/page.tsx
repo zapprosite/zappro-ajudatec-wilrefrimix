@@ -14,7 +14,7 @@ export default function Page() {
         </section>
       ) : (
         <section className="max-w-5xl mx-auto p-8">
-          <a href="https://checkout.stripe.com/test" className="inline-block bg-emerald-600 text-white px-4 py-2 rounded">Assinar</a>
+          <a href="https://checkout.stripe.com/test" className="inline-block bg-emerald-800 text-white px-4 py-2 rounded">Assinar</a>
         </section>
       )}
     </main>

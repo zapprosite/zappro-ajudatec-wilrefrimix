@@ -19,7 +19,13 @@ export async function POST(req: Request) {
   if (allowed && origin && origin !== allowed) {
     return new Response(JSON.stringify({ text: '' }), { status: 403, headers: { 'Access-Control-Allow-Origin': allowed } })
   }
-  const { base64Audio, mimeType } = await req.json()
+  let base64Audio = ''
+  let mimeType = ''
+  try {
+    const parsed = await req.json()
+    base64Audio = typeof parsed?.base64Audio === 'string' ? parsed.base64Audio : ''
+    mimeType = typeof parsed?.mimeType === 'string' ? parsed.mimeType : ''
+  } catch {}
   const apiKey = process.env.OPENAI_API_KEY
   if (!apiKey) {
     return new Response(JSON.stringify({ text: '' }), { status: 200, headers: { 'Access-Control-Allow-Origin': allowed } })

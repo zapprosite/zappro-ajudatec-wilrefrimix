@@ -22,7 +22,7 @@ Data de implementação obrigatória: 25/11/2025
   - Caminhos Linux sempre em `/mnt/<drive>/...`, nunca paths Windows
 - Gerenciamento de servidores:
   - Next.js, Node, Supabase e serviços auxiliares devem ser iniciados via `wsl bash -lc "..."`
-  - Portas padronizadas: app dev `3001` (reservada), escolher porta alternativa quando ocupada
+  - Portas padronizadas: app dev `3001` (canônica e estável). Não alternar portas automaticamente. A porta `3002` só deve ser usada mediante solicitação explícita.
   - Controle de portas/processos com `ss`, `lsof`, `ps`, `kill`
 - Protocolos de comunicação:
   - HTTP local entre componentes (client → API em `app/api/*`)
@@ -31,12 +31,37 @@ Data de implementação obrigatória: 25/11/2025
 
 ## 3. Implementação
 - Scripts de inicialização WSL (modelo):
-  - Dev: `wsl bash -lc "cd /mnt/d/.../apps/saas && PORT=3001 npm run dev"`
+  - Dev: `wsl bash -lc "cd /mnt/d/.../apps/saas && PORT=3001 npm run dev"` (sempre em `3001`)
   - Produção local: `wsl bash -lc "cd /mnt/d/.../apps/saas && npm run build && PORT=3001 npm run start"`
   - Supabase: `wsl bash -lc "cd /mnt/d/... && npx supabase start"` (Docker ativo)
 - Variáveis de ambiente:
   - Armazenadas em `apps/saas/.env` (sem exposição em client)
   - Chaves: `OPENAI_API_KEY`, `STRIPE_SECRET_KEY`, etc. apenas usadas em rotas server
+  - Credenciais de teste (Fake Auth) para dev/preview (em `3001`):
+    - `NEXT_PUBLIC_FAKE_AUTH_EMAIL=test@test.com`
+    - `NEXT_PUBLIC_FAKE_AUTH_PASSWORD=12345678A`
+    - Fluxo: Landing → `Fazer Login` → `Testar Grátis` → `\dashboard`
+    - BASE_URL para testes E2E em WSL: `http://localhost:3001`
+  - Seed de login:
+    - Fake auth não requer seed de banco; a sessão é persistida em `localStorage` (`fake_auth_session`) após o login.
+    - Padronizar execução do servidor e dos testes via WSL para consistência.
+- Registro de Conversões (Windows → WSL Ubuntu 24.04):
+- Terminal VS Code padronizado: `WSL: Ubuntu-24.04`.
+- Scripts `dev/build/preview/install` no `package.json` (raiz e `apps/saas`) migrados para `wsl bash -lc` com paths `/mnt/d/...`.
+- Playwright configurado para iniciar `next dev` via WSL com `reuseExistingServer` e envs fixos; base URL `http://localhost:3001`.
+- `AuthButtons.tsx` atualizado com fallback fake auth; integrado ao `AuthModal` para visibilidade consistente.
+- Ajustes de CORS via `middleware.ts` alinhados ao preview em WSL.
+
+Justificativas Técnicas:
+- Uniformização de shell e paths elimina diferenças de semântica entre PowerShell/cmd e Bash.
+- Porta canônica `3001` reduz conflitos e simplifica testes/cobertura.
+- Fallback fake auth permite desenvolvimento e testes sem provedores externos.
+- CORS parametrizado garante segurança e repetibilidade em dev.
+
+Registro de Compatibilidade (WSL 24.04):
+- `wsl.exe --version` ≥ 2.x e `Ubuntu 24.04` suportados.
+- Testes E2E validados: login/modal, OAuth fallback e chat.
+- `npm run lint` e `npm run typecheck` verdes em WSL.
 - Monitoramento de performance:
   - `htop`, `top`, `free -h`, `docker stats` no WSL
   - Logs de Next.js (dev e produção), métricas de latência de rotas (adicionar quando necessário)

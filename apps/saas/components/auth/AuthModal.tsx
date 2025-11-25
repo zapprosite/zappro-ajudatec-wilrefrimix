@@ -1,10 +1,12 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation'
 import { LoginForm } from './LoginForm';
 import { RegisterForm } from './RegisterForm';
 import { useAuth } from '@/contexts/AuthContext';
 import type { LoginInput, RegisterInput } from '@/lib/schemas';
+import AuthButtons from '../AuthButtons';
 
 interface AuthModalProps {
     isOpen: boolean;
@@ -15,17 +17,20 @@ interface AuthModalProps {
 export function AuthModal({ isOpen, onClose, defaultMode = 'login' }: AuthModalProps) {
     const [mode, setMode] = useState<'login' | 'register'>(defaultMode);
     const { signIn, signUp } = useAuth();
+    const router = useRouter()
 
     if (!isOpen) return null;
 
     const handleLogin = async (data: LoginInput) => {
         await signIn(data.email, data.password);
         onClose();
+        router.push('/dashboard')
     };
 
     const handleRegister = async (data: RegisterInput) => {
         await signUp(data.email, data.password, data.name);
         onClose();
+        router.push('/dashboard')
     };
 
     return (
@@ -78,6 +83,9 @@ export function AuthModal({ isOpen, onClose, defaultMode = 'login' }: AuthModalP
                             onToggleMode={() => setMode('login')}
                         />
                     )}
+                    <div className="mt-6 flex justify-center">
+                      <AuthButtons />
+                    </div>
                 </div>
 
                 {/* Footer */}
