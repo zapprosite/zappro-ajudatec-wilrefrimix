@@ -1,4 +1,7 @@
+'use client';
+
 import './globals.css'
+import { AuthProvider } from '@/contexts/AuthContext'
 import type { ReactNode } from 'react'
 
 export default function RootLayout({ children }: { children: ReactNode }) {
@@ -9,7 +12,9 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       </head>
       <body>
         <a href="#main" className="skip-link">Pular para o conteúdo</a>
-        {children}
+        <AuthProvider>
+          {children}
+        </AuthProvider>
       </body>
     </html>
   )

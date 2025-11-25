@@ -20,6 +20,11 @@
     "types": [
       "vitest/globals"
     ],
+    "paths": {
+      "@/*": [
+        "./*"
+      ]
+    },
     "plugins": [
       {
         "name": "next"

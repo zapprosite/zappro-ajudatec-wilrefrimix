@@ -22,6 +22,7 @@ export interface Message {
   attachments?: Attachment[];
   groundingUrls?: { title: string; uri: string }[];
   audioData?: string;
+  isError?: boolean;
 }
 
 export interface Attachment {

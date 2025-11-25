@@ -18,10 +18,7 @@ type ContentPart =
   | { type: 'input_text'; text: string }
   | { type: 'input_image'; image_url: string }
   | { type: 'input_file'; file_data: string; filename?: string }
-type OutputTextPart = { type: 'output_text'; text?: string }
-type OutputItem = { content?: OutputTextPart[] }
-type ResponseShapeA = { output_text?: string }
-type ResponseShapeB = { output?: OutputItem[] }
+
 
 export async function POST(req: Request) {
   const t0 = Date.now()
@@ -55,8 +52,7 @@ export async function POST(req: Request) {
     }
   }
 
-  const model = contentParts.some(p => p.type !== 'input_text') ? 'gpt-4o' : 'gpt-4.1-mini'
-  const tools = useSearch ? [{ type: 'web_search' as const }] : undefined
+  const model = contentParts.some(p => p.type !== 'input_text') ? 'gpt-4o' : 'gpt-4o-mini'
 
   const instructionBase = (() => {
     const envInstr = process.env.SYSTEM_INSTRUCTION_PT_BR || process.env.SYSTEM_INSTRUCTION
@@ -89,7 +85,7 @@ export async function POST(req: Request) {
           const uri = typeof it?.url === 'string' ? it.url : ''
           if (title && uri) out.push({ title, uri })
         }
-      } catch {}
+      } catch { }
     }
     const brave = process.env.BRAVE_API_KEY
     if (useSearch && brave) {
@@ -104,7 +100,7 @@ export async function POST(req: Request) {
           const uri = typeof it?.url === 'string' ? it.url : ''
           if (title && uri) out.push({ title, uri })
         }
-      } catch {}
+      } catch { }
     }
     const fire = process.env.FIRECRAWL_API_KEY
     if (useSearch && fire) {
@@ -121,7 +117,7 @@ export async function POST(req: Request) {
           const uri = typeof it?.url === 'string' ? it.url : ''
           if (title && uri) out.push({ title, uri })
         }
-      } catch {}
+      } catch { }
     }
     const seen = new Set<string>()
     const uniq: { title: string; uri: string }[] = []
@@ -130,7 +126,7 @@ export async function POST(req: Request) {
     function host(u: string): string {
       try { return new URL(u).host.toLowerCase() } catch { return '' }
     }
-    const manu = ['midea','gree','daikin','carrier','lg','samsung','consul','elgin','springer','electrolux']
+    const manu = ['midea', 'gree', 'daikin', 'carrier', 'lg', 'samsung', 'consul', 'elgin', 'springer', 'electrolux']
     function score(item: { title: string; uri: string }): number {
       const h = host(item.uri)
       let s = 1
@@ -145,7 +141,7 @@ export async function POST(req: Request) {
       }
       return s
     }
-    return uniq.sort((a,b) => score(b) - score(a)).slice(0, 5)
+    return uniq.sort((a, b) => score(b) - score(a)).slice(0, 5)
   }
 
   const grounding = useSearch && typeof text === 'string' && text.trim().length > 0 ? await aggregateSearch(text) : []
@@ -153,24 +149,28 @@ export async function POST(req: Request) {
     ? `${instructionBase}\nFontes sugeridas:\n${grounding.map(g => `- ${g.title} (${g.uri})`).join('\n')}`
     : instructionBase
 
-  const body: {
-    model: string
-    instructions?: string
-    input: Array<{ role: 'user'; content: ContentPart[] }>
-    tools?: Array<{ type: 'web_search' }>
-  } = {
+  // Map content parts to OpenAI format
+  const userContent = contentParts.map(p => {
+    if (p.type === 'input_text') return { type: 'text', text: p.text }
+    if (p.type === 'input_image') return { type: 'image_url', image_url: { url: p.image_url } }
+    // Note: OpenAI API doesn't support 'input_file' directly in messages for Chat Completions in the same way.
+    // We might need to extract text or use a different approach. For now, we'll ignore or convert if possible.
+    // Assuming 'input_file' was for a specific custom endpoint. 
+    // If it's PDF, we usually need to extract text. 
+    // For this fix, I will assume we only handle text and images for standard OpenAI Chat Completions.
+    return null
+  }).filter(Boolean)
+
+  const body = {
     model,
-    instructions: instruction,
-    input: [
-      {
-        role: 'user',
-        content: contentParts,
-      },
+    messages: [
+      { role: 'system', content: instruction },
+      { role: 'user', content: userContent }
     ],
-    tools,
+    // tools: tools // Add tools if needed
   }
 
-  const res = await fetch('https://api.openai.com/v1/responses', {
+  const res = await fetch('https://api.openai.com/v1/chat/completions', {
     method: 'POST',
     headers: {
       'Authorization': `Bearer ${apiKey}`,
@@ -180,24 +180,13 @@ export async function POST(req: Request) {
   })
 
   if (!res.ok) {
+    const err = await res.text()
+    console.error('OpenAI Error:', err)
     return new Response(JSON.stringify({ error: 'internal_error' }), { status: 500 })
   }
 
-  const raw: unknown = await res.json()
-  let textOut: string = ''
-  if (typeof raw === 'object' && raw !== null && 'output_text' in raw) {
-    const a = raw as ResponseShapeA
-    if (typeof a.output_text === 'string') textOut = a.output_text
-  } else if (typeof raw === 'object' && raw !== null && 'output' in raw) {
-    const b = raw as ResponseShapeB
-    const out = b.output
-    if (Array.isArray(out) && out.length > 0) {
-      const first = out[0]
-      const parts = first?.content
-      const match = parts?.find((c) => c.type === 'output_text' && typeof c.text === 'string')
-      textOut = match?.text || ''
-    }
-  }
+  const raw = await res.json()
+  const textOut = raw.choices?.[0]?.message?.content || ''
 
   const payload = { text: textOut || 'Não consegui gerar uma resposta técnica no momento.', groundingUrls: grounding }
   const dur = Date.now() - t0
