@@ -16,11 +16,15 @@ export default function Page() {
   }
 
   return (
-    <main className="min-h-screen bg-white">
+    <main id="main" className="min-h-screen bg-white">
       <WebLanding onStartTrial={onStartTrial} onLogin={onLogin} />
-      {publishableKey && pricingTableId && (
+      {publishableKey && pricingTableId ? (
         <section className="max-w-5xl mx-auto p-8">
           <stripe-pricing-table pricing-table-id={pricingTableId} publishable-key={publishableKey}></stripe-pricing-table>
+        </section>
+      ) : (
+        <section className="max-w-5xl mx-auto p-8">
+          <a href="https://checkout.stripe.com/test" className="inline-block bg-emerald-600 text-white px-4 py-2 rounded">Assinar</a>
         </section>
       )}
     </main>

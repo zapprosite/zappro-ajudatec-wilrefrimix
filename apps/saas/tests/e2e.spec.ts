@@ -3,6 +3,7 @@ import { test, expect } from '@playwright/test'
 test('home carrega', async ({ page }) => {
   await page.goto('/')
   await expect(page.locator('main')).toBeVisible()
+  await expect(page.locator('nav[role="navigation"]')).toBeVisible()
 })
 
 test('chat envia texto', async ({ page }) => {
@@ -33,6 +34,7 @@ test('mobile viewport responsivo', async ({ page }) => {
   await page.setViewportSize({ width: 375, height: 667 })
   await page.goto('/')
   await expect(page.locator('nav >> text=ZapPRO').first()).toBeVisible()
+  await expect(page.locator('button[aria-label="Testar Grátis"]')).toBeVisible()
 })
 
 test('professores endpoint responde com lista', async ({ request }) => {

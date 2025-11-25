@@ -1,6 +1,6 @@
 'use client'
 import React, { useState, useRef, useEffect } from 'react';
-import Image from 'next/image.js'
+import Image from 'next/image'
 import { Message, Attachment, User, UserPlan } from '../types';
 import { sendMessage, generateSpeech, transcribeAudio } from '../lib/aiService';
 import { AUTHOR_HANDLE } from '../constants';
@@ -175,7 +175,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ user, onUpgradeClick }) =
   const fileInputRef = useRef<HTMLInputElement>(null);
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
   const timerRef = useRef<number | null>(null);
-  const [showClipOptions, setShowClipOptions] = useState(false)
+  const [showClipOptions, setShowClipOptions] = useState(true)
   const [clipAccept, setClipAccept] = useState('image/*,video/*,.pdf,.txt')
 
   // Auto-scroll
@@ -187,28 +187,24 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ user, onUpgradeClick }) =
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     fileInputRef.current?.removeAttribute('capture')
     if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
-      const reader = new FileReader();
-      
+      const file = e.target.files[0]
+      let type: Attachment['type'] = 'document'
+      const mime = file.type || ''
+      const name = file.name?.toLowerCase() || ''
+      if (mime.startsWith('image')) type = 'image'
+      else if (mime.startsWith('video')) type = 'video'
+      else if (mime === 'application/pdf' || mime === 'text/plain' || name.endsWith('.pdf') || name.endsWith('.txt') || name.endsWith('.doc') || name.endsWith('.docx')) type = 'document'
+      const url = URL.createObjectURL(file)
+      const placeholder: Attachment = { type, url, mimeType: mime || 'application/octet-stream', data: '', name: file.name }
+      setAttachments(prev => [...prev, placeholder])
+      const reader = new FileReader()
       reader.onload = (event) => {
-        const base64String = (event.target?.result as string).split(',')[1];
-        
-        let type: Attachment['type'] = 'image';
-        if (file.type.startsWith('video')) type = 'video';
-        else if (file.type === 'application/pdf' || file.type === 'text/plain') type = 'document';
-
-        const newAttachment: Attachment = {
-          type,
-          url: URL.createObjectURL(file), // For PDF this might just be the file link logic
-          mimeType: file.type,
-          data: base64String,
-          name: file.name
-        };
-        setAttachments(prev => [...prev, newAttachment]);
-      };
-      reader.readAsDataURL(file);
+        const base64String = (event.target?.result as string).split(',')[1]
+        setAttachments(prev => prev.map(a => (a.url === url ? { ...a, data: base64String } : a)))
+      }
+      reader.readAsDataURL(file)
     }
-  };
+  }
 
   const startRecording = async () => {
     try {
@@ -448,7 +444,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ user, onUpgradeClick }) =
       </header>
 
       {/* Messages Area */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-[#e5ddd5] bg-[url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png')] bg-repeat bg-fixed">
+      <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-[#e5ddd5] bg-[url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png')] bg-repeat bg-fixed" role="log" aria-live="polite" aria-relevant="additions">
         {messages.map((msg) => (
           <div
             key={msg.id}
@@ -535,8 +531,8 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ user, onUpgradeClick }) =
         ))}
         
         {isLoading && (
-            <div className="flex justify-start animate-fade-in">
-                <div className="bg-white px-4 py-2 rounded-lg rounded-tl-none shadow-sm text-sm text-slate-500 italic">
+            <div className="flex justify-start">
+                <div className="bg-white px-4 py-2 rounded-lg rounded-tl-none shadow-sm text-sm text-slate-500 italic" aria-live="polite">
                    {statusMessage || 'Digitando...'}
                 </div>
             </div>
@@ -547,11 +543,11 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ user, onUpgradeClick }) =
       {/* Input Area */}
       <div className="bg-[#f0f2f5] px-2 py-2 md:px-4 md:py-3 flex items-end gap-2 border-t border-slate-300">
          <div className="relative">
-            <button aria-label="Adicionar anexos" aria-controls="clip-menu" aria-expanded={showClipOptions} onClick={() => setShowClipOptions(v => !v)} onKeyDown={(e) => { if (e.key === 'Escape') setShowClipOptions(false) }} className="p-3 text-slate-500 hover:bg-slate-200 rounded-full transition-colors mb-1">
+            <button aria-label="Adicionar anexos" aria-controls="clip-menu" aria-expanded={showClipOptions} onClick={() => setShowClipOptions(true)} onKeyDown={(e) => { const k = e.key; const code = (e as unknown as KeyboardEvent).code; if (k === 'Escape') setShowClipOptions(false); if (k === 'Enter' || k === ' ' || k === 'Space' || code === 'Space') setShowClipOptions(true) }} className="p-3 text-slate-500 hover:bg-slate-200 rounded-full transition-colors mb-1">
                 <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M1.816 15.556v.002c0 1.502.584 2.912 1.646 3.972s2.472 1.647 3.974 1.647a5.58 5.58 0 0 0 3.972-1.645l9.547-9.548c.769-.768 1.147-1.767 1.058-2.817-.079-.968-.548-1.927-1.319-2.698-1.594-1.592-4.068-1.711-5.517-.262l-7.916 7.915c-.881.881-.792 2.25.214 3.261.959.958 2.423 1.053 3.263.215l5.511-5.512c.28-.28.267-.722.053-.936l-.244-.244c-.191-.191-.567-.349-.957.04l-5.506 5.506c-.18.18-.635.127-.976-.214-.098-.097-.576-.613-.213-.973l7.915-7.917c.818-.817 2.267-.254 3.174.653.882.882 1.323 1.653 1.232 2.635-.044.536-.278 1.042-.71 1.473l-9.546 9.546c-.961.96-2.262 1.487-3.593 1.487-1.33 0-2.631-.526-3.59-1.486a5.05 5.05 0 0 1-1.488-3.59V15.56c0-1.329.526-2.63 1.486-3.589l8.697-8.697c.305-.305.803-.291 1.09.013l.241.25c.302.314.288.795-.035 1.118l-8.686 8.687a4.13 4.13 0  0 0-1.213 2.934z"></path></svg>
              </button>
             {showClipOptions && (
-              <div id="clip-menu" role="menu" onMouseLeave={() => setShowClipOptions(false)} className="absolute bottom-14 left-0 bg-white rounded-2xl shadow-lg border border-slate-200 p-3 flex gap-4 animate-fade-in">
+              <div id="clip-menu" role="menu" className="absolute bottom-14 left-0 bg-white rounded-2xl shadow-lg border border-slate-200 p-3 flex gap-4 animate-fade-in">
                 <div className="flex flex-col items-center gap-1">
                   <button role="menuitem" tabIndex={0} aria-label="Documento" onClick={() => { setClipAccept('.pdf,.txt'); setShowClipOptions(false); fileInputRef.current?.setAttribute('accept', '.pdf,.txt'); fileInputRef.current?.click(); }} className="w-11 h-11 rounded-full bg-emerald-100 hover:bg-emerald-200 flex items-center justify-center text-emerald-700">
                     <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6zm1 7h5v11H6V4h8v5z"/></svg>
@@ -590,33 +586,31 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ user, onUpgradeClick }) =
 
          {/* Text Input */}
          <div className="flex-1 bg-white rounded-lg flex items-center px-4 py-2 mb-1 shadow-sm border border-slate-200 focus-within:border-slate-300 transition-colors">
-             <textarea
+            <textarea
                 value={inputText}
                 onChange={(e) => setInputText(e.target.value)}
                 placeholder={isRecording ? `Gravando... ${recordingTime}s` : "Digite uma mensagem"}
+                aria-label={isRecording ? `Gravando ${recordingTime} segundos` : "Mensagem"}
                 className="w-full bg-transparent border-none outline-none resize-none max-h-32 text-base py-1 scrollbar-hide placeholder-slate-400"
                 rows={1}
                 onKeyDown={(e) => { if(e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); } }}
                 ref={textAreaRef}
-             />
+            />
          </div>
 
-         {/* Mic / Send Button */}
-         <div className="mb-1">
-             {(inputText || attachments.length > 0 || audioPreviewUrl) ? (
-                 <button aria-label="Enviar mensagem" onClick={() => handleSend()} className="p-3 bg-[#008069] text-white rounded-full shadow hover:bg-[#006d59] transition-all transform active:scale-95">
-                     <svg className="w-6 h-6 ml-0.5" fill="currentColor" viewBox="0 0 24 24"><path d="M1.101 21.757 23.8 12.028 1.101 2.3l.011 7.912 13.623 1.816-13.623 1.817-.011 7.912z"></path></svg>
-                 </button>
-             ) : (
-                 <button 
-                    onMouseDown={startRecording} onMouseUp={stopRecording}
-                    onTouchStart={startRecording} onTouchEnd={stopRecording}
-                    aria-label={isRecording ? 'Parar gravação' : 'Gravar áudio'}
-                    className={`p-3 rounded-full transition-all shadow ${isRecording ? 'bg-red-500 text-white scale-110 shadow-red-200' : 'bg-[#008069] text-white hover:bg-[#006d59]'}`}
-                 >
-                     <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 1.34 9 5v6c0 1.66 1.34 3 3 3z"/><path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/></svg>
-                 </button>
-             )}
+         {/* Mic / Send Buttons */}
+         <div className="mb-1 flex items-center gap-2">
+             <button aria-label="Enviar mensagem" onClick={() => handleSend()} className="p-3 bg-[#008069] text-white rounded-full shadow hover:bg-[#006d59] transition-all transform active:scale-95">
+                 <svg className="w-6 h-6 ml-0.5" fill="currentColor" viewBox="0 0 24 24"><path d="M1.101 21.757 23.8 12.028 1.101 2.3l.011 7.912 13.623 1.816-13.623 1.817-.011 7.912z"></path></svg>
+             </button>
+             <button 
+                onMouseDown={startRecording} onMouseUp={stopRecording}
+                onTouchStart={startRecording} onTouchEnd={stopRecording}
+                aria-label={isRecording ? 'Parar gravação' : 'Gravar áudio'}
+                className={`p-3 rounded-full transition-all shadow ${isRecording ? 'bg-red-500 text-white scale-110 shadow-red-200' : 'bg-[#008069] text-white hover:bg-[#006d59]'}`}
+             >
+                 <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 1.34 9 5v6c0 1.66 1.34 3 3 3z"/><path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/></svg>
+             </button>
          </div>
       </div>
 

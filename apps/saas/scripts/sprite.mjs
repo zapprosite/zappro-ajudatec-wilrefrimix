@@ -22,7 +22,8 @@ const run=async()=>{
   const apiTts=await withRetry(()=>post('/api/openai/tts',{text:'ola'}))
   const apiTrans=await withRetry(()=>post('/api/openai/transcribe',{base64Audio:'ZGF0YQ==',mimeType:'audio/webm'}))
   const apiProf=await withRetry(()=>get('/api/search/professors'))
+  const status=await withRetry(()=>get('/api/status'))
   const rate=await rateBurst(5)
-  console.log(JSON.stringify({home,chat,apiChat,apiTts,apiTrans,apiProf,rate}))
+  console.log(JSON.stringify({home,chat,apiChat,apiTts,apiTrans,apiProf,status,rate}))
 }
 run()

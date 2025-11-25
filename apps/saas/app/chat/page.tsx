@@ -10,8 +10,8 @@ export default function ChatPage() {
     router.push('/')
   }
   return (
-    <div className="min-h-screen bg-slate-50">
+    <main id="main" className="min-h-screen bg-slate-50">
       <ChatInterface user={user} onUpgradeClick={onUpgradeClick} />
-    </div>
+    </main>
   )
 }

@@ -2,7 +2,7 @@
 <img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
 </div>
 
-# ZapPRO – SaaS (Next.js + OpenAI + Supabase + Stripe)
+# ZapPRO – Assistente Técnico HVAC‑R (Next.js + OpenAI + Supabase + Stripe)
 
 ![CI Sprite](https://img.shields.io/badge/CI%20Sprite-ready-brightgreen)
 
@@ -62,15 +62,13 @@ Nota: Todo o frontend antigo em Vite/Gemini foi removido. O projeto atual é som
 - Compra na landing: embed de Stripe Pricing Table e rota de checkout.
 - Portal do cliente: link Stripe para gerenciamento de assinatura.
 
-## Desenvolvimento Local
+## Desenvolvimento Local (WSL 100%)
 
 ```bash
-cd apps/saas
-npm install
-npm run dev
+wsl bash -lc "cd /mnt/d/projetos/zappro-ajudatec-wilrefrimix/zappro-ajudatec-wilrefrimix/apps/saas && npm install && PORT=3001 npm run dev"
 ```
 
-Abra `http://localhost:3000`.
+Abrir `http://localhost:3001`.
 
 
 
@@ -95,6 +93,50 @@ wsl bash -lc "cd /mnt/d/projetos/zappro-ajudatec-wilrefrimix/zappro-ajudatec-wil
 
 - Chat, Transcribe e TTS expostas em `apps/saas/app/api/openai/*`.
 - Configure `OPENAI_API_KEY` em `apps/saas/.env`.
+
+## Foco do Projeto
+
+- Especialista HVAC‑R brasileiro: diagnósticos práticos, leitura de manuais e suporte multimodal (texto, imagem, áudio, PDF) no estilo WhatsApp.
+- UX orientada a campo: interação por teclado e acessibilidade WCAG 2.1 AA; animações respeitam `prefers-reduced-motion`.
+- Observabilidade: `/status` com métricas, SSE de logs em `/api/logs/stream` e healthchecks.
+
+## Plano de Uso de MCPs (Operação 2025)
+
+- Postgrest
+  - Quando usar: ler/escrever métricas/logs com RLS; consultar dados contratuais.
+  - Como: cliente MCP PostgREST apontando para `rest` do compose.
+  - Exemplo: `mcp_Postgrest_postgrestRequest({ method: 'GET', path: '/v1/items?select=*' })`.
+- GitHub
+  - Quando usar: abrir issues/PRs após falhas de CI, publicar artefatos.
+  - Como: MCP GitHub para issues/PRs; branch `feature/*`/`fix/*` com checks verdes.
+- Fetch/webresearch/Brave/Tavily
+  - Quando usar: decisões com estado‑da‑arte (Next.js, Playwright, Docker, Supabase, WCAG).
+  - Como: buscar documentação e síntese; citar fontes e registrar decisões.
+- Persistent Knowledge Graph
+  - Quando usar: mapear domínios HVAC‑R, requisitos e decisões de arquitetura.
+  - Como: entidades `Subsistema`, `Manual`, `Decisão`; relações `depende_de`, `documentado_por`.
+- Memory
+  - Quando usar: preferências WSL (porta 3001), BASE_URL do compose, flags de CI.
+  - Como: salvar `exec_env=WSL-Ubuntu-24.04` e `base_url=http://web:3001`.
+- Sequential Thinking
+  - Quando usar: tarefas com 3+ etapas (refatorações, migrações, pipelines).
+  - Como: planejar passos e executar sequencialmente com validação em cada etapa.
+- TaskManager (TodoWrite)
+  - Quando usar: qualquer alteração multi‑arquivo; rastrear progresso e marcar concluído.
+  - Como: item único in_progress por vez; estados `pending/in_progress/completed`.
+- testsprite
+  - Quando usar: pós‑deploy/produção; smoke de endpoints críticos (`/api/openai/*`, Stripe).
+  - Como: `BASE_URL=http://localhost:3001 node apps/saas/scripts/sprite.mjs`.
+- Playwright
+  - Quando usar: UI crítica (landing/chat/upload/TTS/OAuth);
+  - Como: via compose `tests` com `BASE_URL=http://web:3001`; rodar em produção (sem overlay dev).
+- Firecrawl
+  - Quando usar: indexar documentação externa para consulta offline.
+  - Como: respeitar robots e licenças; armazenar apenas referência.
+
+Referências
+- Playwright em Docker e pins de versão: https://playwright.dev/docs/docker
+- Execução headed e XServer/WSLg: https://www.oddbird.net/2022/11/30/headed-playwright-in-docker/
 
 ## Próximas Etapas
 
@@ -163,10 +205,10 @@ wsl bash -lc "cd /mnt/d/projetos/zappro-ajudatec-wilrefrimix/zappro-ajudatec-wil
 ## Desenvolvimento
 
 ```bash
-wsl bash -lc "cd /mnt/d/projetos/zappro-ajudatec-wilrefrimix/zappro-ajudatec-wilrefrimix/apps/saas && npm install && npm run dev"
+wsl bash -lc "cd /mnt/d/projetos/zappro-ajudatec-wilrefrimix/zappro-ajudatec-wilrefrimix/apps/saas && npm install && PORT=3001 npm run dev"
 ```
 
-Abrir `http://localhost:3000` (ou porta definida por `PORT`).
+Abrir `http://localhost:3001`.
 
 ## Desenvolvimento e Deploy
 ### Observabilidade de Build/CI

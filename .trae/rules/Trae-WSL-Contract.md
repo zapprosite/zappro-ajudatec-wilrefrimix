@@ -32,7 +32,8 @@ Data de implementação obrigatória: 25/11/2025
 ## 3. Implementação
 - Scripts de inicialização WSL (modelo):
   - Dev: `wsl bash -lc "cd /mnt/d/.../apps/saas && PORT=3001 npm run dev"`
-  - Supabase: `wsl bash -lc "cd /mnt/d/... && npx supabase start"` (apenas com Docker ativo)
+  - Produção local: `wsl bash -lc "cd /mnt/d/.../apps/saas && npm run build && PORT=3001 npm run start"`
+  - Supabase: `wsl bash -lc "cd /mnt/d/... && npx supabase start"` (Docker ativo)
 - Variáveis de ambiente:
   - Armazenadas em `apps/saas/.env` (sem exposição em client)
   - Chaves: `OPENAI_API_KEY`, `STRIPE_SECRET_KEY`, etc. apenas usadas em rotas server
@@ -43,7 +44,8 @@ Data de implementação obrigatória: 25/11/2025
 ## 4. Validação
 - Testes de conformidade:
   - `wsl bash -lc "cd /mnt/d/.../apps/saas && npm run lint && npm run typecheck && npm run build"`
-  - Smoke E2E: `BASE_URL=http://localhost:3001 node apps/saas/scripts/smoke.mjs`
+  - Smoke E2E: `wsl bash -lc "cd /mnt/d/.../apps/saas && BASE_URL=http://localhost:3001 node scripts/sprite.mjs"`
+  - E2E Playwright (compose): `docker compose run --rm --profile test tests`
 - Verificação de compatibilidade:
   - `wsl.exe --version` (2.x), `cat /etc/os-release` (Ubuntu 24.04/22.04), `docker info`
 - Logs e métricas:
@@ -53,8 +55,12 @@ Data de implementação obrigatória: 25/11/2025
 - Operações Git (commit/push/tag) realizadas a partir do WSL
 - Branches: `main` protegido; `feature/*`, `fix/*`, `release/*`, `hotfix/*`
 - Tags: `vMAJOR.MINOR.PATCH` criadas após validação local (`lint/typecheck/build/test:e2e`)
-- CI em GitHub valida contrato WSL (build/start em `3001`, testsprite/Playwright)
+- CI em GitHub valida contrato WSL (compose `web` em `3001`, testsprite/Playwright via `tests`)
 
 ## 5. Versionamento e Retrocompatibilidade
 - Esta documentação é versionada neste repositório, com atualização obrigatória quando novas versões do WSL forem lançadas.
 - Manter retrocompatibilidade com ambientes WSL existentes (22.04/24.04), incluindo notas de migração.
+## 6. Execução por Docker Compose (WSL)
+- Subir web: `docker compose up -d web && curl -sf http://localhost:3001/`
+- Testes E2E: `docker compose run --rm --profile test tests`
+- Down: `docker compose down -v --remove-orphans`

@@ -1,6 +1,6 @@
 'use client'
 import React from 'react'
-import Image from 'next/image.js'
+import Image from 'next/image'
 import { PLAN_PRICE } from '../constants'
 
 interface LandingPageProps {
@@ -12,10 +12,10 @@ const WebLanding: React.FC<LandingPageProps> = ({ onStartTrial, onLogin }) => {
   return (
     <div className="min-h-screen bg-[#0f1115] font-sans selection:bg-emerald-500/30 text-white overflow-x-hidden">
       <div className="fixed top-0 left-0 w-full h-full overflow-hidden pointer-events-none z-0">
-          <div className="absolute top-[-10%] right-[-5%] w-[600px] h-[600px] bg-emerald-500/10 rounded-full blur-[120px] animate-pulse-slow"></div>
+          <div className="absolute top-[-10%] right-[-5%] w-[600px] h-[600px] bg-emerald-500/10 rounded-full blur-[120px] motion-safe:animate-pulse-slow"></div>
           <div className="absolute bottom-[-10%] left-[-10%] w-[500px] h-[500px] bg-blue-600/10 rounded-full blur-[100px]"></div>
       </div>
-      <nav className="fixed w-full top-0 z-50 border-b border-white/5 bg-[#0f1115]/80 backdrop-blur-xl transition-all">
+      <nav className="fixed w-full top-0 z-50 border-b border-white/5 bg-[#0f1115]/80 backdrop-blur-xl transition-all" role="navigation" aria-label="Principal">
         <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
           <div className="flex items-center gap-3">
             <div className="relative">
@@ -25,8 +25,9 @@ const WebLanding: React.FC<LandingPageProps> = ({ onStartTrial, onLogin }) => {
             <span className="font-bold text-xl text-white tracking-tight">ZapPRO</span>
           </div>
           <div className="flex items-center gap-6">
-            <button onClick={onLogin} className="text-slate-400 hover:text-white font-medium text-sm hidden md:block transition-colors">Fazer Login</button>
-            <button onClick={onStartTrial} className="bg-white text-slate-950 px-6 py-2.5 rounded-full font-bold text-sm hover:bg-emerald-400 hover:text-white transition-all shadow-[0_0_20px_rgba(255,255,255,0.1)] hover:shadow-[0_0_30px_rgba(16,185,129,0.4)]">Testar Grátis</button>
+            <button aria-label="Fazer Login" onClick={onLogin} className="text-slate-400 hover:text-white font-medium text-sm hidden md:block transition-colors">Fazer Login</button>
+            <button aria-label="Testar Grátis" onClick={onStartTrial} className="bg-white text-slate-950 px-6 py-2.5 rounded-full font-bold text-sm hover:bg-emerald-400 hover:text-white transition-all shadow-[0_0_20px_rgba(255,255,255,0.1)] hover:shadow-[0_0_30px_rgba(16,185,129,0.4)]">Testar Grátis</button>
+            <a href="https://checkout.stripe.com/test" className="text-slate-400 hover:text-white font-medium text-sm">Assinar</a>
           </div>
         </div>
       </nav>
@@ -46,15 +47,15 @@ const WebLanding: React.FC<LandingPageProps> = ({ onStartTrial, onLogin }) => {
             </h1>
             <p className="text-lg md:text-xl text-slate-400 leading-relaxed max-w-2xl mx-auto lg:mx-0">Transformamos o suporte técnico em uma conversa. Diagnósticos, manuais e consultoria especializada sem sair do app que você já usa.</p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start pt-4">
-              <button onClick={onStartTrial} className="group relative bg-emerald-500 text-slate-950 px-8 py-4 rounded-2xl font-bold text-lg hover:bg-emerald-400 transition-all shadow-[0_0_40px_rgba(16,185,129,0.3)] hover:scale-105">
+              <button aria-label="Começar Agora" onClick={onStartTrial} className="group relative bg-emerald-500 text-slate-950 px-8 py-4 rounded-2xl font-bold text-lg hover:bg-emerald-400 transition-all shadow-[0_0_40px_rgba(16,185,129,0.3)] hover:scale-105">
                 <div className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/40 to-transparent -translate-x-full group-hover:animate-shimmer gpu-transform"></div>
                 <span className="flex items-center gap-2">
                     <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/></svg>
                     Começar Agora
                 </span>
               </button>
-              <button onClick={onLogin} className="bg-white/5 border border-white/10 text-white px-8 py-4 rounded-2xl font-bold text-lg hover:bg-white/10 transition-colors flex items-center justify-center gap-3 backdrop-blur-sm">
-                <Image src="https://www.google.com/favicon.ico" alt="G" width={20} height={20} className="w-5 h-5 grayscale" unoptimized />
+              <button aria-label="Entrar com Google" onClick={onLogin} className="bg-white/5 border border-white/10 text-white px-8 py-4 rounded-2xl font-bold text-lg hover:bg-white/10 transition-colors flex items-center justify-center gap-3 backdrop-blur-sm">
+                <Image src="https://www.google.com/favicon.ico" alt="Google" width={20} height={20} className="w-5 h-5 grayscale" unoptimized />
                 Entrar com Google
               </button>
             </div>

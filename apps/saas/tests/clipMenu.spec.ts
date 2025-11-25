@@ -36,3 +36,22 @@ test('clip menu Documento seta accept para .pdf,.txt', async ({ page }) => {
   expect(acceptDoc?.includes('.pdf')).toBeTruthy()
   expect(acceptDoc?.includes('.txt')).toBeTruthy()
 })
+test('clip menu abre via teclado e fecha com Escape', async ({ page }) => {
+  await page.goto('/chat')
+  await page.focus('button[aria-label="Adicionar anexos"]')
+  await page.keyboard.press('Enter')
+  await expect(page.locator('#clip-menu')).toBeVisible()
+  await page.keyboard.press('Escape')
+  await expect(page.locator('#clip-menu')).toHaveCount(0)
+})
+
+test('clip menu navegação por Tab e ativação com Enter', async ({ page }) => {
+  await page.goto('/chat')
+  await page.focus('button[aria-label="Adicionar anexos"]')
+  await page.keyboard.press('Space')
+  await expect(page.locator('#clip-menu')).toBeVisible()
+  await page.keyboard.press('Tab')
+  await page.keyboard.press('Enter')
+  const accept = await page.locator('input[type="file"]').getAttribute('accept')
+  expect(accept).toContain('image')
+})

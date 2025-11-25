@@ -5,7 +5,7 @@ export default defineConfig({
   testMatch: ['**/*.spec.ts'],
   timeout: 30000,
   use: {
-    baseURL: process.env.BASE_URL || 'http://localhost:3001',
+    baseURL: process.env.BASE_URL || 'http://web:3001',
     headless: true,
   },
   reporter: 'line',

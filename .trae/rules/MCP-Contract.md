@@ -49,6 +49,15 @@ const s = await mcp_Postgrest_sqlToRest({ sql: 'select * from items limit 5' })
 
 Diretriz obrigatória: usar Postgrest quando a fonte for PostgREST e houver necessidade de RLS/REST.
 
+6) Quando usar (X/Y/Z)
+- X: Persistir métricas de rotas e logs (RLS). 
+- Y: Consultar status operacional e relatórios.
+- Z: Integrar dados contratuais com policies RLS.
+
+7) Execução WSL
+- Base URL do compose: `http://rest:3000` dentro da rede docker.
+- Externo (host): `http://localhost:3000`.
+
 ---
 
 ## GitHub
@@ -74,6 +83,11 @@ await mcp_github_search_code({ q: 'path:src function myFn', per_page: 10 })
 
 Diretriz obrigatória: usar GitHub MCP para operações de SCM/PR/issues ao invés de chamadas ad‑hoc.
 
+6) Quando usar (X/Y/Z)
+- X: Abrir issue após falha de CI.
+- Y: Criar PR para mudanças multi‑arquivo.
+- Z: Publicar artefatos de testes/scan.
+
 ---
 
 ## Fetch
@@ -95,6 +109,11 @@ const doc = await mcp_fetch_fetch({ url: 'https://example.com/docs', max_length:
 - Bloqueios CORS/robots; conteúdo dinâmico client‑side.
 
 Diretriz obrigatória: usar Fetch MCP para ingestão web supervisionada.
+
+6) Quando usar (X/Y/Z)
+- X: Documentação técnica (Next.js/Playwright/Docker/Supabase/WCAG).
+- Y: Padrões de pipelines (Compose/Trivy/GHCR).
+- Z: Guias de acessibilidade e UX de referência.
 
 ---
 
@@ -118,6 +137,11 @@ await mcp_Persistent_Knowledge_Graph_create_relations({ relations: [{ from: 'Com
 - Requer curadoria; pode crescer sem governança.
 
 Diretriz obrigatória: usar PKG MCP para memória estruturada de projeto e fontes técnicas.
+
+6) Quando usar (X/Y/Z)
+- X: Mapear domínio HVAC‑R (subsistemas, manuais).
+- Y: Registrar decisões arquiteturais e razões.
+- Z: Rastrear requisitos contratuais e suas validações.
 
 ---
 
@@ -143,6 +167,11 @@ const env = await memory.get('exec_env')
 
 Diretriz obrigatória: registrar no Memory MCP escolhas de ambiente e contratos ativos.
 
+6) Quando usar (X/Y/Z)
+- X: Persistir preferências WSL (porta 3001; distro Ubuntu 24.04).
+- Y: BASE_URL do compose (`http://web:3001`).
+- Z: Flags de CI (retry, headless, perf budget).
+
 ---
 
 ## Sequential Thinking
@@ -167,6 +196,11 @@ for (const step of plan) await sequential.run(step)
 
 Diretriz obrigatória: empregar quando houver 3+ etapas com dependências claras.
 
+6) Quando usar (X/Y/Z)
+- X: Refatorações com múltiplas camadas (UI, API, CI).
+- Y: Migrações de infraestrutura (compose, GHCR, scan).
+- Z: Otimizações de performance com vários stakeholders.
+
 ---
 
 ## TaskManager
@@ -188,6 +222,11 @@ await TodoWrite({ todos: [{ id: 't1', content: 'Rodar smoke E2E', status: 'in_pr
 - Não substitui um gestor de projetos completo.
 
 Diretriz obrigatória: usar TaskManager para qualquer alteração multi‑arquivo ou com validação.
+
+6) Quando usar (X/Y/Z)
+- X: Alterações que exigem lint/typecheck/build/test.
+- Y: Edits de documentação principal.
+- Z: Fluxos de release e hotfix.
 
 ---
 
@@ -212,6 +251,11 @@ await testsprite.run({ baseUrl: 'http://localhost:3001', suites: ['openai', 'str
 
 Diretriz obrigatória: executar testsprite após mudanças em rotas críticas.
 
+6) Quando usar (X/Y/Z)
+- X: Pós‑deploy para smoke.
+- Y: Mudanças em `/api/openai/*`/Stripe.
+- Z: Validação de latência e códigos HTTP.
+
 ---
 
 ## context7
@@ -234,6 +278,11 @@ await context7.attachFiles(['README.md', 'CHANGELOG.md'])
 - Custo cognitivo e de memória.
 
 Diretriz obrigatória: usar quando a decisão depende de contexto longo e distribuído.
+
+6) Quando usar (X/Y/Z)
+- X: Revisões extensas (PRs grandes).
+- Y: Análise de logs e relatórios multi‑fonte.
+- Z: Decisões arquiteturais com histórico.
 
 ---
 
@@ -265,6 +314,16 @@ test('chat abre e envia mensagem', async ({ page }) => {
 
 Diretriz obrigatória: usar em features de UI críticas (upload, TTS, OAuth).
 
+6) Quando usar (X/Y/Z)
+- X: Antes de releases/tag.
+- Y: Após mudanças de UI/UX ou acessibilidade.
+- Z: Em regressões relatadas.
+
+7) Execução em Docker (WSL)
+- Rodar testes dentro do compose (`tests`) com `BASE_URL=http://web:3001`.
+- Pin de imagem Playwright compatível com versão do projeto (no repositório: `v1.47.0-jammy`).
+- Referência: https://playwright.dev/docs/docker
+
 ---
 
 ## webresearch
@@ -286,6 +345,11 @@ await WebSearch({ query: 'Next.js 15 App Router CORS best practices', num: 5 })
 - Ruído e fontes não confiáveis; requer curadoria.
 
 Diretriz obrigatória: usar em decisões que dependem de estado‑da‑arte.
+
+6) Quando usar (X/Y/Z)
+- X: Escolha de versões estáveis (Docker, imagens, serviços).
+- Y: Melhores práticas de CI/CD 2025.
+- Z: Acessibilidade e UX.
 
 ---
 
@@ -310,6 +374,11 @@ await brave.search({ q: 'PostgREST RLS patterns', limit: 10 })
 
 Diretriz obrigatória: preferir Brave para pesquisas técnicas sensíveis.
 
+6) Quando usar (X/Y/Z)
+- X: Busca técnica com privacidade (sem tracking).
+- Y: Complementar Tavily/webresearch.
+- Z: Triagem de fontes.
+
 ---
 
 ## Tavily
@@ -333,6 +402,11 @@ await tavily.query({ q: 'CORS best practices Next.js 2025' })
 
 Diretriz obrigatória: usar quando for necessária síntese de múltiplas fontes confiáveis.
 
+6) Quando usar (X/Y/Z)
+- X: Decisões com múltiplas fontes.
+- Y: Comparativos de soluções.
+- Z: Resumo técnico acionável.
+
 ---
 
 ## Firecrawl
@@ -355,6 +429,11 @@ await firecrawl.crawl({ url: 'https://docs.example.com', depth: 2 })
 - Respeitar robots.txt; quota; legalidade.
 
 Diretriz obrigatória: usar para bases documentais internas e offline.
+
+6) Quando usar (X/Y/Z)
+- X: Indexar docs externas para consulta.
+- Y: Criar base offline de referências.
+- Z: Preparar material para análise no PKG.
 
 ---
 
