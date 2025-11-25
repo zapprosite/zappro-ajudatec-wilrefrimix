@@ -48,7 +48,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [])
 
     const signIn = async (email: string, password: string) => {
-        if (fakeEmail && fakePassword && email === fakeEmail && password === fakePassword) {
+        const e = email.trim().toLowerCase()
+        const f = fakeEmail.trim().toLowerCase()
+        const p = password.trim()
+        const fp = fakePassword.trim()
+        if (f && fp && e === f && p === fp) {
             const fakeUser = { id: 'fake-user', email, user_metadata: { name: 'Usuário Teste' } }
             const fakeSession = { access_token: 'fake-token', token_type: 'bearer', expires_in: 3600 } as unknown as Session
             setUser(fakeUser as unknown as User)
@@ -61,7 +65,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
 
     const signUp = async (email: string, password: string, name: string) => {
-        if (fakeEmail && fakePassword && email === fakeEmail && password === fakePassword) {
+        const e = email.trim().toLowerCase()
+        const f = fakeEmail.trim().toLowerCase()
+        const p = password.trim()
+        const fp = fakePassword.trim()
+        if (f && fp && e === f && p === fp) {
             const fakeUser = { id: 'fake-user', email, user_metadata: { name } }
             const fakeSession = { access_token: 'fake-token', token_type: 'bearer', expires_in: 3600 } as unknown as Session
             setUser(fakeUser as unknown as User)
